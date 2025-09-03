@@ -35,7 +35,7 @@
 #include "botmgr.h"
 //end npcbot
 
-void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& packet)
 {
     //LOG_DEBUG("network.opcode", "WORLD: CMSG_SPLIT_ITEM");
 

@@ -383,6 +383,8 @@ int main(int argc, char** argv)
 
     LOG_INFO("server.worldserver", "{} (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
+    LOG_INFO("server.worldserver", "仅用于学习");
+
     sScriptMgr->OnStartup();
 
     // Launch CliRunnable thread
