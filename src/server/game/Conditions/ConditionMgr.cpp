@@ -33,6 +33,10 @@
 #include "SpellMgr.h"
 #include "WorldState.h"
 
+//npcbot
+#include "bot_ai.h"
+//end npcbot
+
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
 bool Condition::Meets(ConditionSourceInfo& sourceInfo)
@@ -67,6 +71,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot())
+                condMeets = true;
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 // don't allow 0 items (it's checked during table load)
@@ -81,6 +90,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot())
+                condMeets = true; //for now
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 condMeets = player->HasItemOrGemWithIdEquipped(ConditionValue1, 1);
@@ -95,6 +109,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot() && object->ToCreature()->GetBotAI() && !object->ToCreature()->IsFreeBot())
+            {
+                if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
+                   condMeets = (ConditionValue2 & (1 << object->ToCreature()->GetBotOwner()->GetReputationMgr().GetRank(faction)));
+            }
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
@@ -109,6 +131,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot())
+                condMeets = true;
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 condMeets = player->HasAchieved(ConditionValue1);
@@ -120,6 +147,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot() && object->ToCreature()->GetBotAI() && !object->ToCreature()->IsFreeBot())
+                condMeets = object->ToCreature()->GetBotOwner()->GetTeamId() == ConditionValue1;
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 // Xinef: DB Data compatibility...
@@ -145,6 +177,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot())
+                condMeets = object->ToCreature()->GetGender() == ConditionValue1;
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 condMeets = player->getGender() == ConditionValue1;
@@ -156,6 +193,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->IsNPCBot())
+                condMeets = true;
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 condMeets = player->HasSkill(ConditionValue1) && player->GetBaseSkillValue(ConditionValue1) >= ConditionValue2;
@@ -262,6 +304,11 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     {
         if (Unit* unit = object->ToUnit())
         {
+            //npcbot
+            if (object->GetTypeId() == TYPEID_UNIT && object->ToCreature()->GetBotAI())
+                condMeets = object->ToCreature()->GetBotAI()->HasSpell(sSpellMgr->GetSpellInfo(ConditionValue1)->GetFirstRankSpell()->Id);
+            else
+            //end npcbot
             if (Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 condMeets = player->HasSpell(ConditionValue1);
@@ -974,7 +1021,7 @@ bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, Con
 bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
 {
     return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE ||
-            sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU || sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION || sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
+            sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE || sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU || sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION || sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL || sourceType == CONDITION_SOURCE_TYPE_GOSSIP_HELLO ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET || sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT || sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT || sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR || sourceType == CONDITION_SOURCE_TYPE_PLAYER_LOOT_TEMPLATE);
 }
 
@@ -1808,9 +1855,15 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             return false;
         }
         break;
-    case CONDITION_SOURCE_TYPE_UNUSED_20:
-        LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_UNUSED_20 is not in use. SourceEntry = ({}), skipped", cond->SourceEntry);
+    case CONDITION_SOURCE_TYPE_GOSSIP_HELLO:
+    {
+        if (!sObjectMgr->GetCreatureTemplate(cond->SourceEntry))
+        {
+            LOG_ERROR("sql.sql", "CONDITION_SOURCE_TYPE_GOSSIP_HELLO: creature entry {} in `condition` table does not exist in `creature_template`, ignoring.", cond->SourceEntry);
+            return false;
+        }
         break;
+    }
     case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
     case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
         if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))

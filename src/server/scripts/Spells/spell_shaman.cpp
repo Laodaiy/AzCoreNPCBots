@@ -648,6 +648,16 @@ class spell_sha_earthbind_totem : public AuraScript
     {
         if (!GetCaster())
             return;
+
+        //npcbot: workaround for bots
+        if (ObjectGuid creatorGuid = GetCaster()->GetCreatorGUID())
+            if (!creatorGuid.IsPlayer())
+                if (Creature const* bot = ObjectAccessor::GetCreature(*GetCaster(), creatorGuid))
+                    if (AuraEffect const* aur = bot->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
+                        if (roll_chance_i(aur->GetBaseAmount()))
+                            GetTarget()->CastSpell((Unit*)nullptr, SPELL_SHAMAN_TOTEM_EARTHEN_POWER, true);
+        //end npcbot
+
         if (Player* owner = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
             if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                 if (roll_chance_i(aur->GetBaseAmount()))
@@ -1494,7 +1504,7 @@ class spell_sha_astral_shift_aura : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
-            if (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_SILENCE) | (1 << MECHANIC_STUN) | (1 << MECHANIC_FEAR)))
+            if (spellInfo->GetAllEffectsMechanicMask() & ((1ULL << MECHANIC_SILENCE) | (1ULL << MECHANIC_STUN) | (1ULL << MECHANIC_FEAR)))
                 return true;
 
         return false;

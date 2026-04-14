@@ -120,7 +120,7 @@ class spell_mage_burning_determination : public AuraScript
             return false;
 
         // Need Interrupt or Silenced mechanic
-        if (!(eventInfo.GetSpellInfo()->GetAllEffectsMechanicMask() & ((1 << MECHANIC_INTERRUPT) | (1 << MECHANIC_SILENCE))))
+        if (!(eventInfo.GetSpellInfo()->GetAllEffectsMechanicMask() & ((1ULL << MECHANIC_INTERRUPT) | (1ULL << MECHANIC_SILENCE))))
             return false;
 
         // Xinef: immuned effect should just eat charge
@@ -918,6 +918,11 @@ class spell_mage_summon_water_elemental : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
+
+        //npcbot: prevent default handler for bots
+        if (caster->IsNPCBot())
+            return;
+        //end npcbot
 
         if (Creature* pet = ObjectAccessor::GetCreature(*caster, caster->GetPetGUID()))
             if (!pet->IsAlive())

@@ -146,7 +146,14 @@ enum Classes
     (1<<(CLASS_DEATH_KNIGHT-1)))
 
 // valid classes for creature_template.unit_class
+//npcbot
+/*
+//end npcbot
 #define CLASSMASK_ALL_CREATURES ((1<<(CLASS_WARRIOR-1)) | (1<<(CLASS_PALADIN-1)) | (1<<(CLASS_ROGUE-1)) | (1<<(CLASS_MAGE-1)))
+//npcbot
+*/
+#define CLASSMASK_ALL_CREATURES CLASSMASK_ALL_PLAYABLE
+//end npcbot
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1))|(1<<(CLASS_MAGE-1))|(1<<(CLASS_WARLOCK-1)))
 
@@ -1352,22 +1359,22 @@ enum Mechanics : uint32
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)
 inline constexpr uint64 IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK =
-    (UI64LIT(1) << MECHANIC_CHARM) |
-    (UI64LIT(1) << MECHANIC_DISORIENTED) |
-    (UI64LIT(1) << MECHANIC_FEAR) |
-    (UI64LIT(1) << MECHANIC_ROOT) |
-    (UI64LIT(1) << MECHANIC_SLEEP) |
-    (UI64LIT(1) << MECHANIC_SNARE) |
-    (UI64LIT(1) << MECHANIC_STUN) |
-    (UI64LIT(1) << MECHANIC_FREEZE) |
-    (UI64LIT(1) << MECHANIC_KNOCKOUT) |
-    (UI64LIT(1) << MECHANIC_POLYMORPH) |
-    (UI64LIT(1) << MECHANIC_BANISH) |
-    (UI64LIT(1) << MECHANIC_SHACKLE) |
-    (UI64LIT(1) << MECHANIC_TURN) |
-    (UI64LIT(1) << MECHANIC_HORROR) |
-    (UI64LIT(1) << MECHANIC_DAZE) |
-    (UI64LIT(1) << MECHANIC_SAPPED);
+    (1ULL << MECHANIC_CHARM) |
+    (1ULL << MECHANIC_DISORIENTED) |
+    (1ULL << MECHANIC_FEAR) |
+    (1ULL << MECHANIC_ROOT) |
+    (1ULL << MECHANIC_SLEEP) |
+    (1ULL << MECHANIC_SNARE) |
+    (1ULL << MECHANIC_STUN) |
+    (1ULL << MECHANIC_FREEZE) |
+    (1ULL << MECHANIC_KNOCKOUT) |
+    (1ULL << MECHANIC_POLYMORPH) |
+    (1ULL << MECHANIC_BANISH) |
+    (1ULL << MECHANIC_SHACKLE) |
+    (1ULL << MECHANIC_TURN) |
+    (1ULL << MECHANIC_HORROR) |
+    (1ULL << MECHANIC_DAZE) |
+    (1ULL << MECHANIC_SAPPED);
 
 // Spell dispel type
 enum DispelType : uint8

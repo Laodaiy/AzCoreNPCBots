@@ -473,7 +473,7 @@ class spell_pri_mana_burn : public SpellScript
     void HandleAfterHit()
     {
         if (Unit* unitTarget = GetHitUnit())
-            unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+            unitTarget->RemoveAurasWithMechanic((1ULL << MECHANIC_FEAR) | (1ULL << MECHANIC_POLYMORPH));
     }
 
     void Register() override
@@ -565,6 +565,10 @@ class spell_pri_penance : public SpellScript
 
     bool Load() override
     {
+        //npcbot
+        if (GetCaster() && GetCaster()->IsNPCBot())
+            return true;
+        //end npcbot
         return GetCaster()->IsPlayer();
     }
 
@@ -795,6 +799,10 @@ class spell_pri_renew : public AuraScript
 
     bool Load() override
     {
+        //npcbot
+        if (GetCaster() && GetCaster()->IsNPCBot())
+            return true;
+        //end npcbot
         return GetCaster() && GetCaster()->IsPlayer();
     }
 

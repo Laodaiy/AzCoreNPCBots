@@ -812,6 +812,10 @@ class spell_warl_life_tap : public SpellScript
 
     bool Load() override
     {
+        //npcbot
+        if (GetCaster()->IsNPCBot())
+            return true;
+        //end npcbot
         return GetCaster()->IsPlayer();
     }
 
@@ -822,6 +826,11 @@ class spell_warl_life_tap : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
+        //npcbot: skip - handled inside class AI
+        if (GetCaster()->IsNPCBot())
+            return;
+        //end npcbot
+
         Player* caster = GetCaster()->ToPlayer();
         if (Unit* target = GetHitUnit())
         {
@@ -927,7 +936,7 @@ class spell_warl_demonic_circle_teleport : public AuraScript
             if (GameObject* circle = player->GetGameObject(SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON))
             {
                 player->NearTeleportTo(circle->GetPositionX(), circle->GetPositionY(), circle->GetPositionZ(), circle->GetOrientation(), false, false, false, true);
-                player->RemoveAurasWithMechanic(1 << MECHANIC_SNARE);
+                player->RemoveAurasWithMechanic(1ULL << MECHANIC_SNARE);
             }
         }
     }

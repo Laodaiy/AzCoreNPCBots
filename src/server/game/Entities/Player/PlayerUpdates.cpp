@@ -47,6 +47,10 @@
 //  see: https://github.com/azerothcore/azerothcore-wotlk/issues/9766
 #include "GridNotifiersImpl.h"
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
 // Zone Interval should be 1 second
 constexpr auto ZONE_UPDATE_INTERVAL = 1000;
 
@@ -423,6 +427,9 @@ void Player::Update(uint32 p_time)
         RemoveFromNotify(NOTIFY_VISIBILITY_CHANGED);
     }
     sScriptMgr->OnPlayerAfterUpdate(this, p_time);
+    //NpcBot mod: Update
+    _botMgr->Update(p_time);
+    //end Npcbot
 }
 
 void Player::UpdateMirrorTimers()
@@ -1436,7 +1443,7 @@ void Player::UpdatePvPState()
 
     if (pvpInfo.IsHostile) // in hostile area
     {
-        if (IsInFlight()) // on taxi
+        if (IsInFlight() || !m_taxi.empty()) // on taxi or taxi pending resume after login
             return;
 
         if (!IsPvP() || pvpInfo.EndTimer != 0)
@@ -1535,6 +1542,11 @@ void Player::UpdatePvP(bool state, bool _override)
         pvpInfo.EndTimer = GameTime::GetGameTime().count();
         SetPvP(state);
     }
+
+    //npcbot: update pvp flags for bots
+    if (HaveBot())
+        _botMgr->UpdatePvPForBots();
+    //end npcbot
 
     RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
     sScriptMgr->OnPlayerPVPFlagChange(this, state);
@@ -2384,8 +2396,7 @@ void Player::ProcessSpellQueue()
 
             // ExecuteOrCancelSpellCastRequest() can lead to clearing the SpellQueue.
             // Example scenario:
-            //   Handling a spell â†’ Dealing damage to yourself (e.g., spell_pri_vampiric_touch) â†’
-            //   Killing yourself â†’ Player::setDeathState() â†’ SpellQueue.clear().
+            //   Handling a spell â†Dealing damage to yourself (e.g., spell_pri_vampiric_touch) â†            //   Killing yourself â†Player::setDeathState() â†SpellQueue.clear().
             // Calling std::deque::pop_front() on an empty deque results in undefined behavior,
             // so an additional check is added.
             if (!SpellQueue.empty())
